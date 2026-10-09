@@ -345,13 +345,13 @@ header .subtitle {
 .sticky-note {
   width: 100%;
   aspect-ratio: 9/16;
-  background-color: #F3DF7C;
+  background-color: #D9CFE3;
   background-image:
     repeating-linear-gradient(
       transparent 0,
       transparent 27px,
-      rgba(58,54,47,0.045) 27px,
-      rgba(58,54,47,0.045) 28px
+      rgba(58,54,47,0.05) 27px,
+      rgba(58,54,47,0.05) 28px
     );
   padding: 56px 24px 32px;
   display: flex;
@@ -392,18 +392,27 @@ header .subtitle {
 }
 
 .sticky-note .quote-text {
-  font-size: 1.1rem;
-  line-height: 1.95;
+  font-size: 0.98rem;
+  line-height: 1.9;
   color: #3A362F;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   font-weight: 500;
 }
 
 .sticky-note .source-text {
   font-size: 0.72rem;
   color: #6B5F55;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   font-family: 'Noto Sans TC', sans-serif;
+  line-height: 1.7;
+}
+
+.sticky-note .source-text small {
+  display: block;
+  font-size: 0.86em;
+  opacity: 0.75;
+  margin-top: 2px;
+  letter-spacing: 0.05em;
 }
 
 /* 標籤 */
@@ -1457,8 +1466,11 @@ footer {
             <div class="share-stage">
               <div class="sticky-note">
                 <div class="tape"></div>
-                <div class="quote-text">所謂的自由，<br>就是被別人討厭。</div>
-                <div class="source-text">—— 被討厭的勇氣 · 阿德勒</div>
+                <div class="quote-text">我不是我認為的自己，<br>也不是你認為的我。<br>我是我認為你認為的我。</div>
+                <div class="source-text">
+                  —— 查爾斯·霍頓·庫利
+                  <small>1902 ·《人體與社會》</small>
+                </div>
               </div>
             </div>
             <button class="btn btn-primary btn-full">
