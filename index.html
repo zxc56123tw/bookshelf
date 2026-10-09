@@ -334,84 +334,77 @@ header .subtitle {
 
 .book-page-img strong { display:block; margin-bottom: 6px; font-size: 0.7rem; }
 
-/* 社群圖卡預覽 */
-.share-preview {
+/* 3M 便條紙風分享圖 */
+.share-stage {
+  padding: 20px 10px 10px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.sticky-note {
+  width: 100%;
   aspect-ratio: 9/16;
-  background: linear-gradient(180deg, var(--base-light), var(--base));
-  border-radius: 10px;
-  padding: 46px 22px 28px;
+  background-color: #F3DF7C;
+  background-image:
+    repeating-linear-gradient(
+      transparent 0,
+      transparent 27px,
+      rgba(58,54,47,0.045) 27px,
+      rgba(58,54,47,0.045) 28px
+    );
+  padding: 56px 24px 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
   position: relative;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  margin-bottom: 16px;
+  transform: rotate(-1.2deg);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.18),
+    0 2px 4px rgba(0,0,0,0.08),
+    inset 0 -40px 60px rgba(0,0,0,0.04);
+  font-family: 'Noto Serif TC', serif;
 }
 
-/* 紙膠帶 */
-.share-preview .tape {
+.sticky-note .tape {
   position: absolute;
-  top: 10px;
+  top: -14px;
   left: 50%;
   transform: translateX(-50%) rotate(-4deg);
-  width: 92px;
-  height: 24px;
-  background-color: rgba(212, 181, 93, 0.55);
+  width: 110px;
+  height: 28px;
+  background-color: rgba(212, 181, 93, 0.6);
   background-image:
     repeating-linear-gradient(
       92deg,
-      rgba(255,255,255,0.22) 0,
-      rgba(255,255,255,0.22) 2px,
+      rgba(255,255,255,0.25) 0,
+      rgba(255,255,255,0.25) 2px,
       transparent 2px,
       transparent 5px
     );
   box-shadow:
-    0 2px 4px rgba(0,0,0,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.35),
-    inset 0 -1px 0 rgba(0,0,0,0.08);
+    0 3px 6px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
   mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
 }
 
-.share-preview .quote-text {
-  font-size: 1.05rem;
-  line-height: 1.9;
-  color: var(--ink);
-  margin-bottom: 20px;
+.sticky-note .quote-text {
+  font-size: 1.1rem;
+  line-height: 1.95;
+  color: #3A362F;
+  margin-bottom: 24px;
   font-weight: 500;
 }
 
-.share-preview .source-text {
-  font-size: 0.68rem;
-  color: var(--accent);
-  letter-spacing: 0.12em;
+.sticky-note .source-text {
+  font-size: 0.72rem;
+  color: #6B5F55;
+  letter-spacing: 0.14em;
   font-family: 'Noto Sans TC', sans-serif;
 }
-
-.template-row {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.template-chip {
-  min-width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  font-size: 0.62rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-family: 'Noto Sans TC', sans-serif;
-  color: var(--ink);
-  border: 2px solid transparent;
-  cursor: pointer;
-}
-
-.template-chip.active { border-color: var(--sub); }
 
 /* 標籤 */
 .tag-row {
@@ -586,19 +579,28 @@ header .subtitle {
 .sort-chip {
   background: transparent;
   color: var(--accent);
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.65rem;
+  padding: 5px 11px;
+  border-radius: 12px;
+  font-size: 0.68rem;
   font-family: 'Noto Sans TC', sans-serif;
   border: 1px solid rgba(160,149,170,0.4);
   flex-shrink: 0;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .sort-chip.active {
   background: var(--accent);
   color: var(--base-light);
   border-color: var(--accent);
+}
+
+.sort-chip .icon-svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 1.8;
 }
 
 .mini-source .source-icon {
@@ -683,6 +685,189 @@ header .subtitle {
   color: var(--accent);
   letter-spacing: 0.05em;
 }
+
+/* 分組顯示（來源 / 標籤） */
+.group-title {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin: 14px 0 8px;
+  padding: 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.05em;
+}
+
+.group-title:first-child { margin-top: 2px; }
+
+.group-title .icon-svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 1.6;
+}
+
+.group-title .group-count {
+  opacity: 0.65;
+  font-size: 0.9em;
+  margin-left: 2px;
+}
+
+.random-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  border-radius: 14px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.btn-sm .icon-svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.8;
+}
+
+/* ─── 設定頁 ─── */
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--base);
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--sub));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.2rem;
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-info { flex: 1; }
+
+.profile-info .name {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.profile-info .count {
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.settings-group {
+  margin-bottom: 18px;
+}
+
+.settings-group-title {
+  font-size: 0.65rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  padding: 0 4px 6px;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.settings-list {
+  background: var(--base-light);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(46,42,38,0.06);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+
+.settings-item:last-child { border-bottom: none; }
+
+.settings-item .item-icon {
+  color: var(--accent);
+  display: inline-flex;
+}
+
+.settings-item .item-icon .icon-svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.6;
+}
+
+.settings-item .label { flex: 1; }
+
+.settings-item .value {
+  color: var(--accent);
+  font-size: 0.76rem;
+}
+
+.settings-item .chev {
+  color: var(--accent);
+  opacity: 0.5;
+  display: inline-flex;
+}
+
+.settings-item .chev .icon-svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+
+.toggle-switch {
+  width: 34px;
+  height: 20px;
+  background: var(--base-dark);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.toggle-switch.on { background: var(--sub); }
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.toggle-switch.on::after { transform: translateX(14px); }
 
 /* ─── 回饋區 ─── */
 .feedback-section {
@@ -980,6 +1165,36 @@ footer {
     <path d="M9 13H15" stroke-width="1.5" stroke-linecap="round"/>
     <path d="M9 17H14" stroke-width="1.5" stroke-linecap="round"/>
   </symbol>
+
+  <symbol id="icon-chevron-right" viewBox="0 0 24 24">
+    <path d="M9 6L15 12L9 18" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="icon-shuffle" viewBox="0 0 24 24">
+    <path d="M16 3H21V8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4 20L21 3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M21 16V21H16" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15 15L21 21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4 4L9 9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="icon-tag" viewBox="0 0 24 24">
+    <path d="M20.59 13.41L13.42 20.58C13.2343 20.766 13.0137 20.9135 12.7709 21.0141C12.5281 21.1148 12.2678 21.1666 12.005 21.1666C11.7422 21.1666 11.4819 21.1148 11.2391 21.0141C10.9963 20.9135 10.7757 20.766 10.59 20.58L2 12V2H12L20.59 10.59C20.9625 10.9647 21.1716 11.4716 21.1716 12C21.1716 12.5284 20.9625 13.0353 20.59 13.41Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M7 7H7.01" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="icon-palette" viewBox="0 0 24 24">
+    <circle cx="13.5" cy="6.5" r="1.5" stroke-width="1.5"/>
+    <circle cx="17.5" cy="10.5" r="1.5" stroke-width="1.5"/>
+    <circle cx="8.5" cy="7.5" r="1.5" stroke-width="1.5"/>
+    <circle cx="6.5" cy="12.5" r="1.5" stroke-width="1.5"/>
+    <path d="M12 22C6.49 22 2 17.51 2 12C2 6.49 6.49 2 12 2C17.51 2 22 5.58 22 10C22 12.21 20.21 14 18 14H16.17C15.5 14 15 14.5 15 15.17C15 15.5 15.13 15.78 15.33 16C15.54 16.21 15.67 16.5 15.67 16.83C15.67 17.5 15.17 18 14.5 18H12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="icon-user" viewBox="0 0 24 24">
+    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="12" cy="7" r="4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
 </svg>
 
 <div class="autosave-indicator" id="autosaveIndicator">
@@ -1215,21 +1430,16 @@ footer {
             </button>
           </div>
           <div class="app-content">
-            <div class="share-preview">
-              <div class="tape"></div>
-              <div class="quote-text">所謂的自由，<br>就是被別人討厭。</div>
-              <div class="source-text">—— 被討厭的勇氣 · 阿德勒</div>
+            <div class="share-stage">
+              <div class="sticky-note">
+                <div class="tape"></div>
+                <div class="quote-text">所謂的自由，<br>就是被別人討厭。</div>
+                <div class="source-text">—— 被討厭的勇氣 · 阿德勒</div>
+              </div>
             </div>
-            <div class="section-title" style="margin-bottom:8px;">模板風格</div>
-            <div class="template-row">
-              <div class="template-chip active" style="background:var(--base-light);">簡約</div>
-              <div class="template-chip" style="background:#3A362F; color:var(--base-light);">暗黑</div>
-              <div class="template-chip" style="background:#F8F2E1;">文青</div>
-              <div class="template-chip" style="background:var(--accent); color:#fff;">雜誌</div>
-            </div>
-            <button class="btn btn-primary btn-full" style="margin-top:16px;">
-              <svg class="icon-svg"><use href="#icon-share"/></svg>
-              分享到 IG 限動
+            <button class="btn btn-primary btn-full">
+              <svg class="icon-svg"><use href="#icon-download"/></svg>
+              下載圖片
             </button>
           </div>
           <div class="tab-bar">
@@ -1299,71 +1509,139 @@ footer {
                 文章<span class="count">10</span>
               </span>
             </div>
-            <div class="sort-chips">
-              <span class="sort-chip active">最新</span>
-              <span class="sort-chip">來源</span>
-              <span class="sort-chip">標籤</span>
-              <span class="sort-chip">隨機</span>
+            <div class="sort-chips" id="viewSwitcher">
+              <span class="sort-chip active" onclick="switchView(this, 'source')">
+                <svg class="icon-svg"><use href="#icon-book"/></svg>
+                依來源
+              </span>
+              <span class="sort-chip" onclick="switchView(this, 'tag')">
+                <svg class="icon-svg"><use href="#icon-tag"/></svg>
+                依標籤
+              </span>
+              <span class="sort-chip" onclick="switchView(this, 'random')">
+                <svg class="icon-svg"><use href="#icon-shuffle"/></svg>
+                隨機
+              </span>
             </div>
-            <div class="card-grid">
-              <div class="mini-card">
-                <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
-                <div class="mini-source">
-                  <span class="source-icon">
-                    <svg class="icon-svg"><use href="#icon-book"/></svg>
-                    被討厭的勇氣
-                  </span>
-                  <span>10/08</span>
+
+            <!-- 視圖 1：依來源分組 -->
+            <div data-view="source">
+              <div class="group-title">
+                <svg class="icon-svg"><use href="#icon-book"/></svg>
+                書籍 <span class="group-count">· 4</span>
+              </div>
+              <div class="card-grid">
+                <div class="mini-card">
+                  <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>被討厭的勇氣</span><span>10/08</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>原子習慣</span><span>10/06</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>深度工作力</span><span>10/03</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>如何閱讀</span><span>09/22</span></div>
                 </div>
               </div>
-              <div class="mini-card">
-                <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
-                <div class="mini-source">
-                  <span class="source-icon">
-                    <svg class="icon-svg"><use href="#icon-book"/></svg>
-                    原子習慣
-                  </span>
-                  <span>10/06</span>
+              <div class="group-title">
+                <svg class="icon-svg"><use href="#icon-article"/></svg>
+                文章 <span class="group-count">· 2</span>
+              </div>
+              <div class="card-grid">
+                <div class="mini-card">
+                  <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>商業週刊</span><span>10/05</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>Medium</span><span>09/30</span></div>
                 </div>
               </div>
-              <div class="mini-card">
-                <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
-                <div class="mini-source">
-                  <span class="source-icon">
-                    <svg class="icon-svg"><use href="#icon-article"/></svg>
-                    商業週刊
-                  </span>
-                  <span>10/05</span>
+            </div>
+
+            <!-- 視圖 2：依標籤分組 -->
+            <div data-view="tag" style="display:none">
+              <div class="group-title">
+                <svg class="icon-svg"><use href="#icon-tag"/></svg>
+                人生觀 <span class="group-count">· 2</span>
+              </div>
+              <div class="card-grid">
+                <div class="mini-card">
+                  <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>被討厭的勇氣</span><span>10/08</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>商業週刊</span><span>10/05</span></div>
                 </div>
               </div>
-              <div class="mini-card">
-                <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
-                <div class="mini-source">
-                  <span class="source-icon">
-                    <svg class="icon-svg"><use href="#icon-book"/></svg>
-                    深度工作力
-                  </span>
-                  <span>10/03</span>
+              <div class="group-title">
+                <svg class="icon-svg"><use href="#icon-tag"/></svg>
+                行動力 <span class="group-count">· 2</span>
+              </div>
+              <div class="card-grid">
+                <div class="mini-card">
+                  <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>原子習慣</span><span>10/06</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>如何閱讀</span><span>09/22</span></div>
                 </div>
               </div>
-              <div class="mini-card">
-                <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
-                <div class="mini-source">
-                  <span class="source-icon">
-                    <svg class="icon-svg"><use href="#icon-article"/></svg>
-                    Medium
-                  </span>
-                  <span>09/30</span>
+              <div class="group-title">
+                <svg class="icon-svg"><use href="#icon-tag"/></svg>
+                專注學習 <span class="group-count">· 2</span>
+              </div>
+              <div class="card-grid">
+                <div class="mini-card">
+                  <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>深度工作力</span><span>10/03</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>Medium</span><span>09/30</span></div>
                 </div>
               </div>
-              <div class="mini-card">
-                <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
-                <div class="mini-source">
-                  <span class="source-icon">
-                    <svg class="icon-svg"><use href="#icon-book"/></svg>
-                    如何閱讀
-                  </span>
-                  <span>09/22</span>
+            </div>
+
+            <!-- 視圖 3：隨機 -->
+            <div data-view="random" style="display:none">
+              <div class="random-controls">
+                <button class="btn-sm" onclick="shuffleRandom()">
+                  <svg class="icon-svg"><use href="#icon-shuffle"/></svg>
+                  重擲
+                </button>
+              </div>
+              <div class="card-grid" id="randomGrid">
+                <div class="mini-card">
+                  <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>Medium</span><span>09/30</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>被討厭的勇氣</span><span>10/08</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>如何閱讀</span><span>09/22</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>商業週刊</span><span>10/05</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>原子習慣</span><span>10/06</span></div>
+                </div>
+                <div class="mini-card">
+                  <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
+                  <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>深度工作力</span><span>10/03</span></div>
                 </div>
               </div>
             </div>
@@ -1391,6 +1669,138 @@ footer {
       <div class="feedback-block" style="margin-top:20px; width:320px;">
         <label>這個畫面的回饋</label>
         <textarea data-screen="card-list" placeholder="例如：每頁顯示想加入標籤、想要瀑布流..."></textarea>
+      </div>
+    </div>
+
+    <!-- 畫面 6：設定 -->
+    <div class="screen-wrapper">
+      <div class="screen-title">⑥ 設定</div>
+      <div class="iphone">
+        <div class="iphone-notch"></div>
+        <div class="iphone-screen">
+          <div class="status-bar"><span>9:41</span><span>● ● ●</span></div>
+          <div class="app-header">
+            <h2>設定</h2>
+          </div>
+          <div class="app-content">
+            <div class="settings-profile">
+              <div class="avatar">
+                <svg class="icon-svg" style="width:24px;height:24px;color:#fff;"><use href="#icon-user"/></svg>
+              </div>
+              <div class="profile-info">
+                <div class="name">我的書摘</div>
+                <div class="count">42 卡 · 8 來源 · 自 2026/09</div>
+              </div>
+              <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-group-title">外觀</div>
+              <div class="settings-list">
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-palette"/></svg></span>
+                  <span class="label">主題色</span>
+                  <span class="value">文青米黃</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-pencil"/></svg></span>
+                  <span class="label">字體大小</span>
+                  <span class="value">適中</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-settings"/></svg></span>
+                  <span class="label">深色模式</span>
+                  <span class="toggle-switch"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-group-title">連結</div>
+              <div class="settings-list">
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-share"/></svg></span>
+                  <span class="label">Instagram</span>
+                  <span class="value">已連結</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-share"/></svg></span>
+                  <span class="label">Threads</span>
+                  <span class="value">未連結</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-quote"/></svg></span>
+                  <span class="label">AI 助手（Claude）</span>
+                  <span class="value">未設定</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-group-title">資料</div>
+              <div class="settings-list">
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-download"/></svg></span>
+                  <span class="label">匯出 PDF</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-book"/></svg></span>
+                  <span class="label">匯入電子書畫線</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-trash"/></svg></span>
+                  <span class="label">清空所有卡片</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-group-title">關於</div>
+              <div class="settings-list">
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-help"/></svg></span>
+                  <span class="label">版本</span>
+                  <span class="value">v0.1</span>
+                </div>
+                <div class="settings-item">
+                  <span class="item-icon"><svg class="icon-svg"><use href="#icon-pencil"/></svg></span>
+                  <span class="label">意見回饋</span>
+                  <span class="chev"><svg class="icon-svg"><use href="#icon-chevron-right"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-bar">
+            <div class="tab-item">
+              <svg class="icon-svg"><use href="#icon-shelf"/></svg>
+              書架
+            </div>
+            <div class="tab-item">
+              <svg class="icon-svg"><use href="#icon-camera"/></svg>
+              拍攝
+            </div>
+            <div class="tab-item">
+              <svg class="icon-svg"><use href="#icon-card"/></svg>
+              卡片
+            </div>
+            <div class="tab-item active">
+              <svg class="icon-svg"><use href="#icon-settings"/></svg>
+              設定
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feedback-block" style="margin-top:20px; width:320px;">
+        <label>這個畫面的回饋</label>
+        <textarea data-screen="settings" placeholder="例如：想加入主題色選擇、字體預覽..."></textarea>
       </div>
     </div>
 
@@ -1510,6 +1920,7 @@ function copyFeedback() {
     detail: '③ 卡片詳情與感想',
     share: '④ 社群圖卡輸出',
     'card-list': '⑤ 卡片管理首頁',
+    settings: '⑥ 設定',
     overall: '整體印象',
     features: '功能增刪',
     questions: '想討論的部分'
@@ -1517,7 +1928,7 @@ function copyFeedback() {
 
   let md = '# 書摘聚落 UI v0.1 回饋\n\n';
   md += `_時間：${new Date().toLocaleString('zh-TW')}_\n\n`;
-  for (const key of ['shelf','ocr','detail','share','card-list','overall','features','questions']) {
+  for (const key of ['shelf','ocr','detail','share','card-list','settings','overall','features','questions']) {
     if (data[key]) md += `## ${labels[key]}\n${data[key]}\n\n`;
   }
 
@@ -1557,6 +1968,31 @@ function showStatus(msg, type) {
 }
 
 loadFeedback();
+
+// ── 卡片管理頁視圖切換 ──
+function switchView(chip, mode) {
+  chip.parentElement.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  const container = chip.closest('.app-content');
+  container.querySelectorAll('[data-view]').forEach(el => {
+    el.style.display = el.dataset.view === mode ? '' : 'none';
+  });
+}
+
+function shuffleRandom() {
+  const grid = document.getElementById('randomGrid');
+  const cards = Array.from(grid.children);
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+  cards.forEach(c => grid.appendChild(c));
+}
+
+// 設定頁 toggle 互動
+document.querySelectorAll('.toggle-switch').forEach(sw => {
+  sw.addEventListener('click', () => sw.classList.toggle('on'));
+});
 </script>
 </body>
 </html>
