@@ -2,8 +2,20 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>書摘聚落 · 介面雛形 v0.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>書摘聚落</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F0E8D1">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+
+<!-- iOS Safari：加到主畫面 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="書摘聚落">
+<link rel="apple-touch-icon" href="icon.svg">
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -2131,6 +2143,15 @@ function switchTemplate(chip, mode) {
   const note = document.getElementById('shareNote');
   note.classList.remove('template-original', 'template-sticky');
   note.classList.add(`template-${mode}`);
+}
+
+// 註冊 Service Worker（PWA 離線 + 可安裝）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+      console.warn('SW register failed:', err);
+    });
+  });
 }
 </script>
 </body>
