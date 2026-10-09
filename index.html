@@ -538,6 +538,44 @@ header .subtitle {
 }
 
 /* ─── 卡片管理首頁（Grid） ─── */
+.source-chips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+}
+
+.source-chip {
+  background: var(--base);
+  color: var(--ink);
+  padding: 5px 11px;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-family: 'Noto Sans TC', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.source-chip.active {
+  background: var(--accent);
+  color: var(--base-light);
+}
+
+.source-chip .icon-svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 1.8;
+}
+
+.source-chip .count {
+  opacity: 0.65;
+  font-size: 0.9em;
+  margin-left: 2px;
+}
+
 .sort-chips {
   display: flex;
   gap: 6px;
@@ -550,7 +588,7 @@ header .subtitle {
   color: var(--accent);
   padding: 4px 10px;
   border-radius: 10px;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-family: 'Noto Sans TC', sans-serif;
   border: 1px solid rgba(160,149,170,0.4);
   flex-shrink: 0;
@@ -561,6 +599,18 @@ header .subtitle {
   background: var(--accent);
   color: var(--base-light);
   border-color: var(--accent);
+}
+
+.mini-source .source-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mini-source .source-icon .icon-svg {
+  width: 10px;
+  height: 10px;
+  stroke-width: 1.8;
 }
 
 .card-grid {
@@ -923,6 +973,13 @@ footer {
   <symbol id="icon-chevron-down" viewBox="0 0 24 24">
     <path d="M6 9L12 15L18 9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
+
+  <symbol id="icon-article" viewBox="0 0 24 24">
+    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M14 2V8H20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9 13H15" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M9 17H14" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
 </svg>
 
 <div class="autosave-indicator" id="autosaveIndicator">
@@ -1222,43 +1279,92 @@ footer {
               </div>
               <div class="stat-item">
                 <span class="num">8</span>
-                <span class="label">本書</span>
+                <span class="label">來源</span>
               </div>
               <div class="stat-item">
                 <span class="num">7</span>
                 <span class="label">本週</span>
               </div>
             </div>
+            <div class="source-chips">
+              <span class="source-chip active">
+                全部<span class="count">42</span>
+              </span>
+              <span class="source-chip">
+                <svg class="icon-svg"><use href="#icon-book"/></svg>
+                書籍<span class="count">32</span>
+              </span>
+              <span class="source-chip">
+                <svg class="icon-svg"><use href="#icon-article"/></svg>
+                文章<span class="count">10</span>
+              </span>
+            </div>
             <div class="sort-chips">
               <span class="sort-chip active">最新</span>
-              <span class="sort-chip">書名</span>
+              <span class="sort-chip">來源</span>
               <span class="sort-chip">標籤</span>
               <span class="sort-chip">隨機</span>
             </div>
             <div class="card-grid">
               <div class="mini-card">
                 <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
-                <div class="mini-source"><span>被討厭的勇氣</span><span>10/08</span></div>
+                <div class="mini-source">
+                  <span class="source-icon">
+                    <svg class="icon-svg"><use href="#icon-book"/></svg>
+                    被討厭的勇氣
+                  </span>
+                  <span>10/08</span>
+                </div>
               </div>
               <div class="mini-card">
                 <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
-                <div class="mini-source"><span>原子習慣</span><span>10/06</span></div>
+                <div class="mini-source">
+                  <span class="source-icon">
+                    <svg class="icon-svg"><use href="#icon-book"/></svg>
+                    原子習慣
+                  </span>
+                  <span>10/06</span>
+                </div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
+                <div class="mini-source">
+                  <span class="source-icon">
+                    <svg class="icon-svg"><use href="#icon-article"/></svg>
+                    商業週刊
+                  </span>
+                  <span>10/05</span>
+                </div>
               </div>
               <div class="mini-card">
                 <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
-                <div class="mini-source"><span>深度工作力</span><span>10/03</span></div>
+                <div class="mini-source">
+                  <span class="source-icon">
+                    <svg class="icon-svg"><use href="#icon-book"/></svg>
+                    深度工作力
+                  </span>
+                  <span>10/03</span>
+                </div>
               </div>
               <div class="mini-card">
-                <div class="mini-quote">我們是否成為自己想成為的人，取決於每日的選擇。</div>
-                <div class="mini-source"><span>刻意練習</span><span>09/28</span></div>
-              </div>
-              <div class="mini-card">
-                <div class="mini-quote">痛苦是必然，受苦是選擇。</div>
-                <div class="mini-source"><span>當下的力量</span><span>09/25</span></div>
+                <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
+                <div class="mini-source">
+                  <span class="source-icon">
+                    <svg class="icon-svg"><use href="#icon-article"/></svg>
+                    Medium
+                  </span>
+                  <span>09/30</span>
+                </div>
               </div>
               <div class="mini-card">
                 <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
-                <div class="mini-source"><span>如何閱讀</span><span>09/22</span></div>
+                <div class="mini-source">
+                  <span class="source-icon">
+                    <svg class="icon-svg"><use href="#icon-book"/></svg>
+                    如何閱讀
+                  </span>
+                  <span>09/22</span>
+                </div>
               </div>
             </div>
           </div>
