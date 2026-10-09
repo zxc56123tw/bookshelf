@@ -416,6 +416,89 @@ header .subtitle {
   letter-spacing: 0.05em;
 }
 
+/* 樣板：原板（書架小卡風） */
+.sticky-note.template-original {
+  background-color: #FBF5E6;
+  background-image:
+    linear-gradient(135deg, transparent 0%, rgba(242,232,207,0.6) 100%),
+    repeating-linear-gradient(
+      transparent 0,
+      transparent 27px,
+      rgba(58,54,47,0.04) 27px,
+      rgba(58,54,47,0.04) 28px
+    );
+}
+
+.sticky-note.template-original .tape {
+  background-color: rgba(212, 181, 93, 0.45);
+  background-image:
+    repeating-linear-gradient(
+      92deg,
+      rgba(255,255,255,0.25) 0,
+      rgba(255,255,255,0.25) 2px,
+      transparent 2px,
+      transparent 5px
+    );
+}
+
+/* 樣板切換（縮圖預覽） */
+.template-switcher {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  justify-content: center;
+}
+
+.template-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-family: 'Noto Sans TC', sans-serif;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+.template-mini.active { color: var(--ink); font-weight: 600; }
+
+.mini-preview {
+  width: 32px;
+  height: 44px;
+  border-radius: 2px;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  border: 2px solid transparent;
+}
+
+.template-mini.active .mini-preview {
+  border-color: var(--sub);
+  padding: 1px;
+}
+
+.mini-preview::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  width: 18px;
+  height: 5px;
+  border-radius: 1px;
+}
+
+.mini-original {
+  background: linear-gradient(135deg, #FBF5E6, #F2E8CF);
+}
+.mini-original::before { background: rgba(212,181,93,0.5); }
+
+.mini-sticky {
+  background: #FFF6AA;
+}
+.mini-sticky::before { background: #D6CFC4; }
+
 /* 標籤 */
 .tag-row {
   display: flex;
@@ -1465,7 +1548,7 @@ footer {
           </div>
           <div class="app-content">
             <div class="share-stage">
-              <div class="sticky-note">
+              <div class="sticky-note template-original" id="shareNote">
                 <div class="tape"></div>
                 <div class="quote-text">我不是我認為的我，<br>也不是你認為的我。<br>我是我認為的你認為的我。</div>
                 <div class="source-text">
@@ -1474,7 +1557,17 @@ footer {
                 </div>
               </div>
             </div>
-            <button class="btn btn-primary btn-full">
+            <div class="template-switcher">
+              <div class="template-mini active" onclick="switchTemplate(this, 'original')">
+                <div class="mini-preview mini-original"></div>
+                <span>原板</span>
+              </div>
+              <div class="template-mini" onclick="switchTemplate(this, 'sticky')">
+                <div class="mini-preview mini-sticky"></div>
+                <span>便利貼</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full" style="margin-top:14px;">
               <svg class="icon-svg"><use href="#icon-download"/></svg>
               下載圖片
             </button>
@@ -2030,6 +2123,15 @@ function shuffleRandom() {
 document.querySelectorAll('.toggle-switch').forEach(sw => {
   sw.addEventListener('click', () => sw.classList.toggle('on'));
 });
+
+// 社群圖卡樣板切換
+function switchTemplate(chip, mode) {
+  chip.parentElement.querySelectorAll('.template-mini').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  const note = document.getElementById('shareNote');
+  note.classList.remove('template-original', 'template-sticky');
+  note.classList.add(`template-${mode}`);
+}
 </script>
 </body>
 </html>
