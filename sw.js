@@ -1,10 +1,11 @@
-const CACHE = 'bookshelf-v3';
+const CACHE = 'bookshelf-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
-  './js/supabase.js'
+  './js/supabase.js',
+  './js/cards.js'
 ];
 
 self.addEventListener('install', e => {

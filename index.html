@@ -919,6 +919,36 @@ body {
 .conn-status.ok .dot { background: #4CA76E; box-shadow: 0 0 6px rgba(76,167,110,0.5); }
 .conn-status.fail .dot { background: #C85757; box-shadow: 0 0 6px rgba(200,87,87,0.5); }
 
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--accent);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+}
+
+.quote-card { position: relative; }
+.card-delete {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border-radius: 50%;
+}
+.quote-card:hover .card-delete,
+.card-delete:focus { opacity: 0.7; }
+.card-delete:hover { opacity: 1; background: rgba(200,87,87,0.1); color: #C85757; }
+
 .settings-group {
   margin-bottom: 18px;
 }
@@ -1254,29 +1284,8 @@ body {
           新增標籤
         </button>
       </div>
-      <div class="quote-card">
-        <div class="meta">
-          <svg class="icon-svg"><use href="#icon-book"/></svg>
-          被討厭的勇氣 · p.82
-        </div>
-        <div class="quote">所謂的自由，就是被別人討厭。</div>
-        <div class="source">10/08 · 阿德勒</div>
-      </div>
-      <div class="quote-card">
-        <div class="meta">
-          <svg class="icon-svg"><use href="#icon-book"/></svg>
-          原子習慣 · p.44
-        </div>
-        <div class="quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
-        <div class="source">10/06 · James Clear</div>
-      </div>
-      <div class="quote-card">
-        <div class="meta">
-          <svg class="icon-svg"><use href="#icon-book"/></svg>
-          深度工作力 · p.17
-        </div>
-        <div class="quote">專注的能力，是現代最稀缺的技能。</div>
-        <div class="source">10/03 · Cal Newport</div>
+      <div id="shelfList">
+        <div class="empty-state">載入中…</div>
       </div>
     </section>
 
@@ -1293,7 +1302,7 @@ body {
       <div class="ocr-text">
         <em style="color:var(--accent)">尚未拍攝 / 上傳圖片，辨識結果將在這裡顯示。</em>
       </div>
-      <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="todo('製成卡片')">
+      <button class="btn btn-primary btn-full" style="margin-top:16px;" onclick="handleCreateCard()">
         <svg class="icon-svg"><use href="#icon-scissors"/></svg>
         製成卡片
       </button>
@@ -1632,6 +1641,7 @@ body {
 <!-- ───── Supabase (ES module) ───── -->
 <script type="module">
 import { supabase, signInWithGoogle, signOut, getSession, onAuthChange } from './js/supabase.js';
+import { listCards, createCard, deleteCard } from './js/cards.js';
 
 window.sb = supabase;
 
@@ -1699,9 +1709,103 @@ async function pingConnection() {
 (async () => {
   const session = await getSession();
   renderAuthState(session?.user ?? null);
-  onAuthChange((user) => renderAuthState(user));
+  onAuthChange((user) => {
+    renderAuthState(user);
+    renderShelf();
+  });
   pingConnection();
+  renderShelf();
 })();
+
+// ─── 卡片 CRUD ───
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderCard(c) {
+  const iconId = c.source_type === 'book' ? 'icon-book' : 'icon-article';
+  const page = c.page ? ` · ${escapeHtml(c.page)}` : '';
+  const date = new Date(c.created_at).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
+  const author = c.source_author ? ` · ${escapeHtml(c.source_author)}` : '';
+  return `
+    <div class="quote-card" data-id="${c.id}">
+      <button class="card-delete" onclick="handleDeleteCard('${c.id}')" aria-label="刪除">×</button>
+      <div class="meta">
+        <svg class="icon-svg"><use href="#${iconId}"/></svg>
+        ${escapeHtml(c.source_title)}${page}
+      </div>
+      <div class="quote">${escapeHtml(c.quote)}</div>
+      <div class="source">${date}${author}</div>
+    </div>
+  `;
+}
+
+async function renderShelf() {
+  const list = document.getElementById('shelfList');
+  if (!list) return;
+  const session = await getSession();
+  if (!session) {
+    list.innerHTML = `<div class="empty-state">請先到「設定」登入 Google，<br>才能看到你的卡片。</div>`;
+    return;
+  }
+  try {
+    const cards = await listCards();
+    if (cards.length === 0) {
+      list.innerHTML = `<div class="empty-state">還沒有卡片。<br>到「拍攝」頁按「製成卡片」新增一張吧。</div>`;
+      return;
+    }
+    list.innerHTML = cards.map(renderCard).join('');
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state">載入失敗：${escapeHtml(err.message)}</div>`;
+    console.error('[cards] list', err);
+  }
+}
+
+window.handleCreateCard = async () => {
+  const session = await getSession();
+  if (!session) {
+    alert('請先到「設定」登入 Google');
+    return;
+  }
+  const quote = prompt('金句內容：');
+  if (!quote?.trim()) return;
+  const sourceTitle = prompt('書名或文章標題：');
+  if (!sourceTitle?.trim()) return;
+  const sourceType = confirm('是「書籍」嗎？\n\n確定 = 書籍\n取消 = 文章') ? 'book' : 'article';
+  const sourceAuthor = prompt('作者（可留空）：') || null;
+  const page = sourceType === 'book' ? (prompt('頁數（例：p.82，可留空）：') || null) : null;
+
+  try {
+    await createCard({
+      quote: quote.trim(),
+      source_title: sourceTitle.trim(),
+      source_author: sourceAuthor?.trim() || null,
+      source_type: sourceType,
+      page: page?.trim() || null,
+    });
+    location.hash = 'shelf';
+    renderShelf();
+  } catch (err) {
+    alert('新增失敗：' + err.message);
+    console.error('[cards] create', err);
+  }
+};
+
+window.handleDeleteCard = async (id) => {
+  if (!confirm('確定刪除這張卡片？')) return;
+  try {
+    await deleteCard(id);
+    renderShelf();
+  } catch (err) {
+    alert('刪除失敗：' + err.message);
+    console.error('[cards] delete', err);
+  }
+};
+
+window.addEventListener('hashchange', () => {
+  if ((location.hash.slice(1) || 'shelf') === 'shelf') renderShelf();
+});
 </script>
 
 <script>
