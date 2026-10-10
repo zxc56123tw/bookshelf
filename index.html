@@ -1009,6 +1009,129 @@ body {
   justify-content: space-between;
 }
 
+/* Bottom sheet picker（例：選書籍） */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: pickerFadeIn 0.15s ease;
+}
+@keyframes pickerFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.picker-sheet {
+  width: 100%;
+  max-width: 480px;
+  max-height: 70vh;
+  background: var(--paper);
+  border-radius: 14px 14px 0 0;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  animation: pickerSlideUp 0.22s ease;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+}
+@keyframes pickerSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.picker-sheet .picker-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: center;
+  padding-bottom: 12px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  letter-spacing: 0.05em;
+}
+.picker-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  min-height: 60px;
+}
+.picker-item {
+  display: block;
+  width: 100%;
+  padding: 14px 12px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+  line-height: 1.4;
+}
+.picker-item:hover,
+.picker-item:focus { background: rgba(160,149,170,0.12); outline: none; }
+.picker-item .picker-item-meta {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin-top: 3px;
+  letter-spacing: 0.03em;
+}
+.picker-empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--accent);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.picker-cancel {
+  padding: 12px;
+  background: rgba(0,0,0,0.04);
+  border: none;
+  border-radius: 8px;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  letter-spacing: 0.05em;
+}
+.picker-cancel:hover { background: rgba(0,0,0,0.08); }
+
+/* 卡片頁書籍 filter 列 */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: rgba(160,149,170,0.1);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+}
+.filter-bar .filter-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.filter-bar .filter-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.filter-bar .filter-clear {
+  color: var(--accent);
+  text-decoration: none;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.filter-bar .filter-clear:hover { background: var(--accent); color: #fff; }
+
 .quote-card { position: relative; }
 .card-delete {
   position: absolute;
@@ -1392,6 +1515,7 @@ body {
 
     <!-- 畫面：卡片管理（分頁視圖） -->
     <section class="view" id="view-cards">
+      <div id="cardsFilterBar"></div>
       <div class="stat-row">
         <div class="stat-item"><span class="num" id="statTotal">—</span><span class="label">總卡片</span></div>
         <div class="stat-item"><span class="num" id="statSources">—</span><span class="label">來源</span></div>
@@ -1735,7 +1859,7 @@ function renderBookCard(g) {
   const date = new Date(g.latest).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
   const displayTitle = g.source_type === 'book' ? `《${escapeHtml(g.title)}》` : escapeHtml(g.title);
   return `
-    <a class="book-card" href="#cards">
+    <a class="book-card" href="#cards?book=${encodeURIComponent(g.title)}">
       <div class="book-meta">
         <svg class="icon-svg"><use href="#${iconId}"/></svg>
         ${typeLabel}${author}
@@ -1794,18 +1918,29 @@ function renderStats(cards) {
   document.getElementById('statWeek').textContent = cards.filter(c => new Date(c.created_at).getTime() > weekAgo).length;
 }
 
-function renderSourceChips(cards) {
-  const total = cards.length;
-  const books = cards.filter(c => c.source_type === 'book').length;
-  const articles = cards.filter(c => c.source_type === 'article').length;
+function renderSourceChips(allCards, bookFilter) {
+  const total = allCards.length;
+  const books = allCards.filter(c => c.source_type === 'book').length;
+  const articles = allCards.filter(c => c.source_type === 'article').length;
+
+  let bookFilterType = null;
+  if (bookFilter) {
+    const match = allCards.find(c => c.source_title === bookFilter);
+    bookFilterType = match?.source_type ?? null;
+  }
+
+  const isAllActive = !bookFilter && activeSourceType === 'all';
+  const isBookActive = bookFilterType === 'book';
+  const isArticleActive = (!bookFilter && activeSourceType === 'article') || bookFilterType === 'article';
+
   const el = document.getElementById('sourceChips');
   el.innerHTML = `
-    <button class="source-chip ${activeSourceType === 'all' ? 'active' : ''}" onclick="setSourceType('all')">全部<span class="count">${total}</span></button>
-    <button class="source-chip ${activeSourceType === 'book' ? 'active' : ''}" onclick="setSourceType('book')">
+    <button class="source-chip ${isAllActive ? 'active' : ''}" onclick="setSourceType('all')">全部<span class="count">${total}</span></button>
+    <button class="source-chip ${isBookActive ? 'active' : ''}" onclick="setSourceType('book')">
       <svg class="icon-svg"><use href="#icon-book"/></svg>
       書籍<span class="count">${books}</span>
     </button>
-    <button class="source-chip ${activeSourceType === 'article' ? 'active' : ''}" onclick="setSourceType('article')">
+    <button class="source-chip ${isArticleActive ? 'active' : ''}" onclick="setSourceType('article')">
       <svg class="icon-svg"><use href="#icon-article"/></svg>
       文章<span class="count">${articles}</span>
     </button>
@@ -1852,7 +1987,20 @@ function renderByRandom(cards) {
   el.innerHTML = shuffled.map(renderMiniCard).join('');
 }
 
-async function renderCardsPage() {
+function renderFilterBar(bookFilter) {
+  const bar = document.getElementById('cardsFilterBar');
+  if (!bookFilter) { bar.innerHTML = ''; return; }
+  bar.innerHTML = `
+    <div class="filter-bar">
+      <svg class="icon-svg filter-icon"><use href="#icon-book"/></svg>
+      <span class="filter-label">只看：${escapeHtml(bookFilter)}</span>
+      <a class="filter-clear" href="#cards">清空</a>
+    </div>
+  `;
+}
+
+async function renderCardsPage(bookFilter = null) {
+  renderFilterBar(bookFilter);
   const session = await getSession();
   if (!session) {
     document.getElementById('viewBySource').innerHTML = `<div class="empty-state">請先到「設定」登入 Google。</div>`;
@@ -1863,9 +2011,11 @@ async function renderCardsPage() {
     return;
   }
   try {
-    const cards = await listCards();
+    const all = await listCards();
+    if (bookFilter) activeSourceType = 'all';
+    const cards = bookFilter ? all.filter(c => c.source_title === bookFilter) : all;
     renderStats(cards);
-    renderSourceChips(cards);
+    renderSourceChips(all, bookFilter);
     renderBySource(cards);
     renderByTag();
     renderByRandom(cards);
@@ -1876,9 +2026,80 @@ async function renderCardsPage() {
 }
 
 window.setSourceType = (type) => {
+  if (type === 'book') {
+    showBookPicker();
+    return;
+  }
   activeSourceType = type;
-  renderCardsPage();
+  if (parseHash().params.get('book')) {
+    location.hash = 'cards';
+  } else {
+    renderCardsPage();
+  }
 };
+
+async function showBookPicker() {
+  let books = [];
+  try {
+    const all = await listCards();
+    books = groupByBook(all.filter(c => c.source_type === 'book'));
+  } catch (err) {
+    alert('載入書籍清單失敗：' + err.message);
+    return;
+  }
+  const currentFilter = parseHash().params.get('book');
+  renderPicker({
+    title: '選書籍',
+    items: books.map(g => ({
+      key: g.title,
+      label: `《${g.title}》`,
+      meta: `${g.author ? g.author + ' · ' : ''}${g.cards.length} 張${currentFilter === g.title ? ' · 正在看' : ''}`,
+    })),
+    emptyText: '還沒有書籍類卡片。<br>到「拍攝」頁按「製成卡片」收藏一張吧。',
+    onSelect: (key) => {
+      location.hash = `cards?book=${encodeURIComponent(key)}`;
+    },
+  });
+}
+
+function renderPicker({ title, items, emptyText, onSelect }) {
+  const existing = document.getElementById('pickerOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'pickerOverlay';
+  overlay.className = 'picker-overlay';
+  const body = items.length === 0
+    ? `<div class="picker-empty">${emptyText}</div>`
+    : items.map(it => `
+        <button class="picker-item" data-key="${encodeURIComponent(it.key)}">
+          ${escapeHtml(it.label)}
+          <span class="picker-item-meta">${escapeHtml(it.meta)}</span>
+        </button>
+      `).join('');
+  overlay.innerHTML = `
+    <div class="picker-sheet">
+      <div class="picker-title">${escapeHtml(title)}</div>
+      <div class="picker-list">${body}</div>
+      <button class="picker-cancel">取消</button>
+    </div>
+  `;
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.classList.contains('picker-cancel')) {
+      overlay.remove();
+      return;
+    }
+    const item = e.target.closest('.picker-item');
+    if (item) {
+      const key = decodeURIComponent(item.dataset.key);
+      overlay.remove();
+      onSelect(key);
+    }
+  });
+
+  document.body.appendChild(overlay);
+}
 
 window.switchCardView = (chip, mode) => {
   chip.parentElement.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
@@ -1891,7 +2112,9 @@ window.switchCardView = (chip, mode) => {
 window.shuffleRandom = async () => {
   try {
     const cards = await listCards();
-    const filtered = activeSourceType === 'all' ? cards : cards.filter(c => c.source_type === activeSourceType);
+    const bookFilter = parseHash().params.get('book');
+    let filtered = bookFilter ? cards.filter(c => c.source_title === bookFilter) : cards;
+    if (activeSourceType !== 'all') filtered = filtered.filter(c => c.source_type === activeSourceType);
     renderByRandom(filtered);
   } catch (err) {
     console.error('[cards] shuffle', err);
@@ -1899,9 +2122,9 @@ window.shuffleRandom = async () => {
 };
 
 function renderActiveView() {
-  const { route } = parseHash();
+  const { route, params } = parseHash();
   if (route === 'shelf') renderBookshelf();
-  else if (route === 'cards') renderCardsPage();
+  else if (route === 'cards') renderCardsPage(params.get('book'));
 }
 
 window.handleCreateCard = async () => {
@@ -1953,7 +2176,12 @@ window.handleEditSource = async (encodedOld) => {
   if (!newTitle || newTitle === oldTitle) return;
   try {
     await renameSource(oldTitle, newTitle);
-    renderCardsPage();
+    const currentFilter = parseHash().params.get('book');
+    if (currentFilter === oldTitle) {
+      location.hash = `cards?book=${encodeURIComponent(newTitle)}`;
+    } else {
+      renderActiveView();
+    }
   } catch (err) {
     alert('編輯失敗：' + err.message);
     console.error('[source] rename', err);
