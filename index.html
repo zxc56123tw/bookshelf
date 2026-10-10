@@ -623,6 +623,25 @@ body {
   margin-left: 2px;
 }
 
+.group-title .group-edit {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 2px 6px;
+  opacity: 0.5;
+  transition: opacity 0.15s, color 0.15s;
+  border-radius: 4px;
+  line-height: 1;
+}
+.group-title .group-edit:hover {
+  opacity: 1;
+  color: var(--ink);
+  background: rgba(0,0,0,0.04);
+}
+
 .random-controls {
   display: flex;
   justify-content: flex-end;
@@ -928,6 +947,68 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* 書架：按書分組（便條紙風格） */
+.book-card {
+  display: block;
+  background: linear-gradient(135deg, #FBF5E6 0%, #F2E8CF 100%);
+  border-radius: 2px;
+  padding: 18px 16px;
+  margin-bottom: 16px;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.06),
+    0 1px 2px rgba(0,0,0,0.04),
+    inset 0 0 30px rgba(160,149,170,0.04);
+  position: relative;
+  transform: rotate(-0.4deg);
+  text-decoration: none;
+  color: inherit;
+}
+.book-card:nth-child(even) { transform: rotate(0.5deg); }
+.book-card:nth-child(3n) { transform: rotate(-0.2deg); }
+.book-card::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-5deg);
+  width: 36px;
+  height: 10px;
+  background: rgba(212,181,93,0.3);
+  border-radius: 1px;
+}
+.book-card .book-meta {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.book-card .book-meta .icon-svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.6;
+}
+.book-card .book-title {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.book-card .book-footer {
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-style: italic;
+  border-top: 1px dashed rgba(46,42,38,0.12);
+  padding-top: 6px;
+  font-family: 'Noto Sans TC', sans-serif;
+  display: flex;
+  justify-content: space-between;
+}
+
 .quote-card { position: relative; }
 .card-delete {
   position: absolute;
@@ -946,6 +1027,7 @@ body {
   border-radius: 50%;
 }
 .quote-card:hover .card-delete,
+.mini-card:hover .card-delete,
 .card-delete:focus { opacity: 0.7; }
 .card-delete:hover { opacity: 1; background: rgba(200,87,87,0.1); color: #C85757; }
 
@@ -1284,7 +1366,7 @@ body {
           新增標籤
         </button>
       </div>
-      <div id="shelfList">
+      <div id="shelfBooks">
         <div class="empty-state">載入中…</div>
       </div>
     </section>
@@ -1308,24 +1390,14 @@ body {
       </button>
     </section>
 
-    <!-- 畫面：卡片管理 -->
+    <!-- 畫面：卡片管理（分頁視圖） -->
     <section class="view" id="view-cards">
       <div class="stat-row">
-        <div class="stat-item"><span class="num">42</span><span class="label">總卡片</span></div>
-        <div class="stat-item"><span class="num">8</span><span class="label">來源</span></div>
-        <div class="stat-item"><span class="num">7</span><span class="label">本週</span></div>
+        <div class="stat-item"><span class="num" id="statTotal">—</span><span class="label">總卡片</span></div>
+        <div class="stat-item"><span class="num" id="statSources">—</span><span class="label">來源</span></div>
+        <div class="stat-item"><span class="num" id="statWeek">—</span><span class="label">本週</span></div>
       </div>
-      <div class="source-chips">
-        <button class="source-chip active">全部<span class="count">42</span></button>
-        <button class="source-chip">
-          <svg class="icon-svg"><use href="#icon-book"/></svg>
-          書籍<span class="count">32</span>
-        </button>
-        <button class="source-chip">
-          <svg class="icon-svg"><use href="#icon-article"/></svg>
-          文章<span class="count">10</span>
-        </button>
-      </div>
+      <div class="source-chips" id="sourceChips"></div>
       <div class="sort-chips">
         <button class="sort-chip active" onclick="switchCardView(this, 'source')">
           <svg class="icon-svg"><use href="#icon-book"/></svg>
@@ -1340,110 +1412,16 @@ body {
           隨機
         </button>
       </div>
-
-      <div data-cardview="source">
-        <div class="group-title">
-          <svg class="icon-svg"><use href="#icon-book"/></svg>
-          書籍 <span class="group-count">· 4</span>
-        </div>
-        <div class="card-grid">
-          <div class="mini-card" onclick="location.hash='detail'">
-            <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>被討厭的勇氣</span><span>10/08</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>原子習慣</span><span>10/06</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>深度工作力</span><span>10/03</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>如何閱讀</span><span>09/22</span></div>
-          </div>
-        </div>
-        <div class="group-title">
-          <svg class="icon-svg"><use href="#icon-article"/></svg>
-          文章 <span class="group-count">· 2</span>
-        </div>
-        <div class="card-grid">
-          <div class="mini-card">
-            <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>商業週刊</span><span>10/05</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>Medium</span><span>09/30</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div data-cardview="tag" style="display:none">
-        <div class="group-title">
-          <svg class="icon-svg"><use href="#icon-tag"/></svg>
-          人生觀 <span class="group-count">· 2</span>
-        </div>
-        <div class="card-grid">
-          <div class="mini-card">
-            <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>被討厭的勇氣</span><span>10/08</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>商業週刊</span><span>10/05</span></div>
-          </div>
-        </div>
-        <div class="group-title">
-          <svg class="icon-svg"><use href="#icon-tag"/></svg>
-          行動力 <span class="group-count">· 2</span>
-        </div>
-        <div class="card-grid">
-          <div class="mini-card">
-            <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>原子習慣</span><span>10/06</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>如何閱讀</span><span>09/22</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div data-cardview="random" style="display:none">
+      <div data-cardview="source" id="viewBySource"></div>
+      <div data-cardview="tag" id="viewByTag" style="display:none"></div>
+      <div data-cardview="random" id="viewByRandom" style="display:none">
         <div class="random-controls">
           <button class="btn-sm" onclick="shuffleRandom()">
             <svg class="icon-svg"><use href="#icon-shuffle"/></svg>
             重擲
           </button>
         </div>
-        <div class="card-grid" id="randomGrid">
-          <div class="mini-card">
-            <div class="mini-quote">設計師最大的敵人，是自己的審美疲勞。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>Medium</span><span>09/30</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">所謂的自由，就是被別人討厭。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>被討厭的勇氣</span><span>10/08</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">閱讀讓人謙卑，寫作讓人精確。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>如何閱讀</span><span>09/22</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">真正的學習不是獲取資訊，而是改變看待世界的方式。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-article"/></svg>商業週刊</span><span>10/05</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">你並沒有達到你目標的水準，你只會達到你系統的水準。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>原子習慣</span><span>10/06</span></div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-quote">專注的能力，是現代最稀缺的技能。</div>
-            <div class="mini-source"><span class="source-icon"><svg class="icon-svg"><use href="#icon-book"/></svg>深度工作力</span><span>10/03</span></div>
-          </div>
-        </div>
+        <div class="card-grid" id="randomGrid"></div>
       </div>
     </section>
 
@@ -1641,7 +1619,7 @@ body {
 <!-- ───── Supabase (ES module) ───── -->
 <script type="module">
 import { supabase, signInWithGoogle, signOut, getSession, onAuthChange } from './js/supabase.js';
-import { listCards, createCard, deleteCard } from './js/cards.js';
+import { listCards, createCard, deleteCard, renameSource } from './js/cards.js';
 
 window.sb = supabase;
 
@@ -1711,10 +1689,10 @@ async function pingConnection() {
   renderAuthState(session?.user ?? null);
   onAuthChange((user) => {
     renderAuthState(user);
-    renderShelf();
+    renderActiveView();
   });
   pingConnection();
-  renderShelf();
+  renderActiveView();
 })();
 
 // ─── 卡片 CRUD ───
@@ -1723,43 +1701,207 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function renderCard(c) {
-  const iconId = c.source_type === 'book' ? 'icon-book' : 'icon-article';
-  const page = c.page ? ` · ${escapeHtml(c.page)}` : '';
-  const date = new Date(c.created_at).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
-  const author = c.source_author ? ` · ${escapeHtml(c.source_author)}` : '';
+function parseHash() {
+  const raw = location.hash.slice(1) || 'shelf';
+  const qIdx = raw.indexOf('?');
+  if (qIdx === -1) return { route: raw, params: new URLSearchParams() };
+  return { route: raw.slice(0, qIdx), params: new URLSearchParams(raw.slice(qIdx + 1)) };
+}
+
+function groupByBook(cards) {
+  const map = new Map();
+  for (const c of cards) {
+    const key = c.source_title;
+    if (!map.has(key)) {
+      map.set(key, {
+        title: c.source_title,
+        author: c.source_author,
+        source_type: c.source_type,
+        cards: [],
+        latest: c.created_at,
+      });
+    }
+    const g = map.get(key);
+    g.cards.push(c);
+    if (c.created_at > g.latest) g.latest = c.created_at;
+  }
+  return Array.from(map.values()).sort((a, b) => b.latest.localeCompare(a.latest));
+}
+
+function renderBookCard(g) {
+  const iconId = g.source_type === 'book' ? 'icon-book' : 'icon-article';
+  const typeLabel = g.source_type === 'book' ? '書籍' : '文章';
+  const author = g.author ? ` · ${escapeHtml(g.author)}` : '';
+  const date = new Date(g.latest).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
+  const displayTitle = g.source_type === 'book' ? `《${escapeHtml(g.title)}》` : escapeHtml(g.title);
   return `
-    <div class="quote-card" data-id="${c.id}">
-      <button class="card-delete" onclick="handleDeleteCard('${c.id}')" aria-label="刪除">×</button>
-      <div class="meta">
+    <a class="book-card" href="#cards">
+      <div class="book-meta">
         <svg class="icon-svg"><use href="#${iconId}"/></svg>
-        ${escapeHtml(c.source_title)}${page}
+        ${typeLabel}${author}
       </div>
-      <div class="quote">${escapeHtml(c.quote)}</div>
-      <div class="source">${date}${author}</div>
-    </div>
+      <div class="book-title">${displayTitle}</div>
+      <div class="book-footer">
+        <span>最新 ${date}</span>
+        <span>${g.cards.length} 張</span>
+      </div>
+    </a>
   `;
 }
 
-async function renderShelf() {
-  const list = document.getElementById('shelfList');
-  if (!list) return;
+async function renderBookshelf() {
+  const el = document.getElementById('shelfBooks');
+  if (!el) return;
   const session = await getSession();
   if (!session) {
-    list.innerHTML = `<div class="empty-state">請先到「設定」登入 Google，<br>才能看到你的卡片。</div>`;
+    el.innerHTML = `<div class="empty-state">請先到「設定」登入 Google，<br>才能看到你的書架。</div>`;
     return;
   }
   try {
     const cards = await listCards();
     if (cards.length === 0) {
-      list.innerHTML = `<div class="empty-state">還沒有卡片。<br>到「拍攝」頁按「製成卡片」新增一張吧。</div>`;
+      el.innerHTML = `<div class="empty-state">書架還是空的。<br>到「拍攝」頁按「製成卡片」收藏第一張吧。</div>`;
       return;
     }
-    list.innerHTML = cards.map(renderCard).join('');
+    el.innerHTML = groupByBook(cards).map(renderBookCard).join('');
   } catch (err) {
-    list.innerHTML = `<div class="empty-state">載入失敗：${escapeHtml(err.message)}</div>`;
-    console.error('[cards] list', err);
+    el.innerHTML = `<div class="empty-state">載入失敗：${escapeHtml(err.message)}</div>`;
+    console.error('[shelf] list', err);
   }
+}
+
+let activeSourceType = 'all'; // 'all' | 'book' | 'article'
+
+function renderMiniCard(c) {
+  const iconId = c.source_type === 'book' ? 'icon-book' : 'icon-article';
+  const date = new Date(c.created_at).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
+  return `
+    <div class="mini-card" data-id="${c.id}">
+      <button class="card-delete" onclick="handleDeleteCard('${c.id}')" aria-label="刪除">×</button>
+      <div class="mini-quote">${escapeHtml(c.quote)}</div>
+      <div class="mini-source">
+        <span class="source-icon"><svg class="icon-svg"><use href="#${iconId}"/></svg>${escapeHtml(c.source_title)}</span>
+        <span>${date}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderStats(cards) {
+  document.getElementById('statTotal').textContent = cards.length;
+  document.getElementById('statSources').textContent = new Set(cards.map(c => c.source_title)).size;
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  document.getElementById('statWeek').textContent = cards.filter(c => new Date(c.created_at).getTime() > weekAgo).length;
+}
+
+function renderSourceChips(cards) {
+  const total = cards.length;
+  const books = cards.filter(c => c.source_type === 'book').length;
+  const articles = cards.filter(c => c.source_type === 'article').length;
+  const el = document.getElementById('sourceChips');
+  el.innerHTML = `
+    <button class="source-chip ${activeSourceType === 'all' ? 'active' : ''}" onclick="setSourceType('all')">全部<span class="count">${total}</span></button>
+    <button class="source-chip ${activeSourceType === 'book' ? 'active' : ''}" onclick="setSourceType('book')">
+      <svg class="icon-svg"><use href="#icon-book"/></svg>
+      書籍<span class="count">${books}</span>
+    </button>
+    <button class="source-chip ${activeSourceType === 'article' ? 'active' : ''}" onclick="setSourceType('article')">
+      <svg class="icon-svg"><use href="#icon-article"/></svg>
+      文章<span class="count">${articles}</span>
+    </button>
+  `;
+}
+
+function renderBySource(cards) {
+  const el = document.getElementById('viewBySource');
+  const filtered = activeSourceType === 'all' ? cards : cards.filter(c => c.source_type === activeSourceType);
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty-state">沒有符合的卡片。</div>`;
+    return;
+  }
+  const groups = groupByBook(filtered);
+  el.innerHTML = groups.map(g => {
+    const iconId = g.source_type === 'book' ? 'icon-book' : 'icon-article';
+    const displayTitle = g.source_type === 'book' ? `《${escapeHtml(g.title)}》` : escapeHtml(g.title);
+    const titleKey = encodeURIComponent(g.title);
+    return `
+      <div class="group-title">
+        <svg class="icon-svg"><use href="#${iconId}"/></svg>
+        ${displayTitle} <span class="group-count">· ${g.cards.length}</span>
+        <button class="group-edit" onclick="handleEditSource('${titleKey}')" aria-label="編輯來源名稱" title="編輯來源名稱">✎</button>
+      </div>
+      <div class="card-grid">
+        ${g.cards.map(renderMiniCard).join('')}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderByTag() {
+  const el = document.getElementById('viewByTag');
+  el.innerHTML = `<div class="empty-state">標籤系統 Day 2 推出 🏷️<br>到時可幫卡片貼標籤，<br>並依標籤分類瀏覽。</div>`;
+}
+
+function renderByRandom(cards) {
+  const el = document.getElementById('randomGrid');
+  if (cards.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1">沒有卡片可以抽。</div>`;
+    return;
+  }
+  const shuffled = [...cards].sort(() => Math.random() - 0.5).slice(0, 6);
+  el.innerHTML = shuffled.map(renderMiniCard).join('');
+}
+
+async function renderCardsPage() {
+  const session = await getSession();
+  if (!session) {
+    document.getElementById('viewBySource').innerHTML = `<div class="empty-state">請先到「設定」登入 Google。</div>`;
+    document.getElementById('sourceChips').innerHTML = '';
+    document.getElementById('statTotal').textContent = '—';
+    document.getElementById('statSources').textContent = '—';
+    document.getElementById('statWeek').textContent = '—';
+    return;
+  }
+  try {
+    const cards = await listCards();
+    renderStats(cards);
+    renderSourceChips(cards);
+    renderBySource(cards);
+    renderByTag();
+    renderByRandom(cards);
+  } catch (err) {
+    console.error('[cards] page', err);
+    document.getElementById('viewBySource').innerHTML = `<div class="empty-state">載入失敗：${escapeHtml(err.message)}</div>`;
+  }
+}
+
+window.setSourceType = (type) => {
+  activeSourceType = type;
+  renderCardsPage();
+};
+
+window.switchCardView = (chip, mode) => {
+  chip.parentElement.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  document.querySelectorAll('[data-cardview]').forEach(el => {
+    el.style.display = el.dataset.cardview === mode ? '' : 'none';
+  });
+};
+
+window.shuffleRandom = async () => {
+  try {
+    const cards = await listCards();
+    const filtered = activeSourceType === 'all' ? cards : cards.filter(c => c.source_type === activeSourceType);
+    renderByRandom(filtered);
+  } catch (err) {
+    console.error('[cards] shuffle', err);
+  }
+};
+
+function renderActiveView() {
+  const { route } = parseHash();
+  if (route === 'shelf') renderBookshelf();
+  else if (route === 'cards') renderCardsPage();
 }
 
 window.handleCreateCard = async () => {
@@ -1785,7 +1927,7 @@ window.handleCreateCard = async () => {
       page: page?.trim() || null,
     });
     location.hash = 'shelf';
-    renderShelf();
+    renderBookshelf();
   } catch (err) {
     alert('新增失敗：' + err.message);
     console.error('[cards] create', err);
@@ -1796,16 +1938,29 @@ window.handleDeleteCard = async (id) => {
   if (!confirm('確定刪除這張卡片？')) return;
   try {
     await deleteCard(id);
-    renderShelf();
+    renderActiveView();
   } catch (err) {
     alert('刪除失敗：' + err.message);
     console.error('[cards] delete', err);
   }
 };
 
-window.addEventListener('hashchange', () => {
-  if ((location.hash.slice(1) || 'shelf') === 'shelf') renderShelf();
-});
+window.handleEditSource = async (encodedOld) => {
+  const oldTitle = decodeURIComponent(encodedOld);
+  const input = prompt(`編輯「${oldTitle}」的來源名稱：`, oldTitle);
+  if (input === null) return;
+  const newTitle = input.trim();
+  if (!newTitle || newTitle === oldTitle) return;
+  try {
+    await renameSource(oldTitle, newTitle);
+    renderCardsPage();
+  } catch (err) {
+    alert('編輯失敗：' + err.message);
+    console.error('[source] rename', err);
+  }
+};
+
+window.addEventListener('hashchange', renderActiveView);
 </script>
 
 <script>
@@ -1859,31 +2014,16 @@ function handleRightBtn() {
   if (currentRightAction) currentRightAction();
 }
 
+function routeFromHash() {
+  return (location.hash.slice(1) || 'shelf').split('?')[0];
+}
+
 window.addEventListener('hashchange', () => {
-  navigate(location.hash.slice(1) || 'shelf');
+  navigate(routeFromHash());
 });
 
 // 初始化
-navigate(location.hash.slice(1) || 'shelf');
-
-// ─── 卡片管理頁視圖切換 ───
-function switchCardView(chip, mode) {
-  chip.parentElement.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
-  chip.classList.add('active');
-  document.querySelectorAll('[data-cardview]').forEach(el => {
-    el.style.display = el.dataset.cardview === mode ? '' : 'none';
-  });
-}
-
-function shuffleRandom() {
-  const grid = document.getElementById('randomGrid');
-  const cards = Array.from(grid.children);
-  for (let i = cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
-  }
-  cards.forEach(c => grid.appendChild(c));
-}
+navigate(routeFromHash());
 
 // ─── 社群圖卡樣板 ───
 function switchTemplate(chip, mode) {
