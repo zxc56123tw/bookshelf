@@ -1154,6 +1154,21 @@ body {
 .card-delete:focus { opacity: 0.7; }
 .card-delete:hover { opacity: 1; background: rgba(200,87,87,0.1); color: #C85757; }
 
+.thought-item .note-delete {
+  float: right;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 6px;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+.thought-item:hover .note-delete { opacity: 0.7; }
+.thought-item .note-delete:hover { opacity: 1; color: #C85757; }
+
 .settings-group {
   margin-bottom: 18px;
 }
@@ -1551,35 +1566,8 @@ body {
 
     <!-- 畫面：卡片詳情 -->
     <section class="view" id="view-detail">
-      <div class="quote-card" style="transform:rotate(-0.3deg);">
-        <div class="meta">
-          <svg class="icon-svg"><use href="#icon-book"/></svg>
-          被討厭的勇氣 · p.82
-        </div>
-        <div class="quote" style="font-size:1.05rem;">所謂的自由，就是被別人討厭。</div>
-        <div class="source">10/08 · 阿德勒</div>
-      </div>
-      <button class="btn btn-primary btn-full" style="margin-top:18px;" onclick="location.hash='share'">
-        <svg class="icon-svg"><use href="#icon-share"/></svg>
-        製作分享圖
-      </button>
-      <div class="thoughts-section">
-        <div class="section-title">
-          <svg class="icon-svg"><use href="#icon-quote"/></svg>
-          我的感想
-        </div>
-        <div class="thought-item">
-          <div class="date">10/08 20:15</div>
-          一開始讀到這句很衝擊，但也理解到真正做自己的代價就是要承受不被喜歡。
-        </div>
-        <div class="thought-item">
-          <div class="date">10/09 09:02</div>
-          再讀一次，發現這和課業壓力下總想討好所有人的狀態有關。
-        </div>
-        <button class="btn btn-secondary btn-full" style="margin-top:10px; font-size:0.85rem;" onclick="todo('新增感想')">
-          <svg class="icon-svg"><use href="#icon-plus"/></svg>
-          新增感想
-        </button>
+      <div id="detailBody">
+        <div class="empty-state">載入中…</div>
       </div>
     </section>
 
@@ -1588,11 +1576,8 @@ body {
       <div class="share-stage">
         <div class="sticky-note template-original" id="shareNote">
           <div class="tape"></div>
-          <div class="quote-text">我不是我認為的我，<br>也不是你認為的我。<br>我是我認為的你認為的我。</div>
-          <div class="source-text">
-            —— 查爾斯·霍頓·庫利
-            <small>1902 ·《人性與社會秩序》</small>
-          </div>
+          <div class="quote-text" id="shareQuote">載入中…</div>
+          <div class="source-text" id="shareSource"></div>
         </div>
       </div>
       <div class="template-switcher">
@@ -1743,7 +1728,7 @@ body {
 <!-- ───── Supabase (ES module) ───── -->
 <script type="module">
 import { supabase, signInWithGoogle, signOut, getSession, onAuthChange } from './js/supabase.js';
-import { listCards, createCard, deleteCard, renameSource } from './js/cards.js';
+import { listCards, createCard, deleteCard, renameSource, getCard, listNotes, createNote, deleteNote } from './js/cards.js';
 
 window.sb = supabase;
 
@@ -1900,8 +1885,8 @@ function renderMiniCard(c) {
   const iconId = c.source_type === 'book' ? 'icon-book' : 'icon-article';
   const date = new Date(c.created_at).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
   return `
-    <div class="mini-card" data-id="${c.id}">
-      <button class="card-delete" onclick="handleDeleteCard('${c.id}')" aria-label="刪除">×</button>
+    <div class="mini-card" data-id="${c.id}" onclick="goDetail('${c.id}')">
+      <button class="card-delete" onclick="event.stopPropagation(); handleDeleteCard('${c.id}')" aria-label="刪除">×</button>
       <div class="mini-quote">${escapeHtml(c.quote)}</div>
       <div class="mini-source">
         <span class="source-icon"><svg class="icon-svg"><use href="#${iconId}"/></svg>${escapeHtml(c.source_title)}</span>
@@ -1910,6 +1895,10 @@ function renderMiniCard(c) {
     </div>
   `;
 }
+
+window.goDetail = (id) => {
+  location.hash = `detail?id=${encodeURIComponent(id)}`;
+};
 
 function renderStats(cards) {
   document.getElementById('statTotal').textContent = cards.length;
@@ -2121,10 +2110,141 @@ window.shuffleRandom = async () => {
   }
 };
 
+function renderNote(n) {
+  const d = new Date(n.created_at);
+  const dateStr = d.toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return `
+    <div class="thought-item" data-note-id="${n.id}">
+      <div class="date">
+        ${dateStr}
+        <button class="note-delete" onclick="handleDeleteNote('${n.id}')" aria-label="刪除">×</button>
+      </div>
+      ${escapeHtml(n.content)}
+    </div>
+  `;
+}
+
+async function renderDetail(cardId) {
+  const body = document.getElementById('detailBody');
+  if (!cardId) {
+    body.innerHTML = `<div class="empty-state">沒有指定卡片。</div>`;
+    return;
+  }
+  const session = await getSession();
+  if (!session) {
+    body.innerHTML = `<div class="empty-state">請先到「設定」登入 Google。</div>`;
+    return;
+  }
+  try {
+    const [card, notes] = await Promise.all([getCard(cardId), listNotes(cardId)]);
+    if (!card) {
+      body.innerHTML = `<div class="empty-state">找不到這張卡片，可能已被刪除。</div>`;
+      return;
+    }
+    const iconId = card.source_type === 'book' ? 'icon-book' : 'icon-article';
+    const page = card.page ? ` · ${escapeHtml(card.page)}` : '';
+    const date = new Date(card.created_at).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' });
+    const author = card.source_author ? ` · ${escapeHtml(card.source_author)}` : '';
+    const notesHtml = notes.length
+      ? notes.map(renderNote).join('')
+      : `<div class="empty-state" style="padding:24px 12px; font-size:0.82rem;">還沒有感想，<br>按下方按鈕新增第一則吧。</div>`;
+    body.innerHTML = `
+      <div class="quote-card" style="transform:rotate(-0.3deg);">
+        <div class="meta">
+          <svg class="icon-svg"><use href="#${iconId}"/></svg>
+          ${escapeHtml(card.source_title)}${page}
+        </div>
+        <div class="quote" style="font-size:1.05rem;">${escapeHtml(card.quote)}</div>
+        <div class="source">${date}${author}</div>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:18px;" onclick="location.hash='share?id=${card.id}'">
+        <svg class="icon-svg"><use href="#icon-share"/></svg>
+        製作分享圖
+      </button>
+      <div class="thoughts-section">
+        <div class="section-title">
+          <svg class="icon-svg"><use href="#icon-quote"/></svg>
+          我的感想
+        </div>
+        <div id="notesList">${notesHtml}</div>
+        <button class="btn btn-secondary btn-full" style="margin-top:10px; font-size:0.85rem;" onclick="handleCreateNote('${card.id}')">
+          <svg class="icon-svg"><use href="#icon-plus"/></svg>
+          新增感想
+        </button>
+      </div>
+    `;
+  } catch (err) {
+    body.innerHTML = `<div class="empty-state">載入失敗：${escapeHtml(err.message)}</div>`;
+    console.error('[detail] render', err);
+  }
+}
+
+window.handleCreateNote = async (cardId) => {
+  const content = prompt('輸入感想：');
+  if (!content?.trim()) return;
+  try {
+    await createNote(cardId, content.trim());
+    renderDetail(cardId);
+  } catch (err) {
+    alert('新增失敗：' + err.message);
+    console.error('[note] create', err);
+  }
+};
+
+window.handleDeleteNote = async (id) => {
+  if (!confirm('確定刪除這則感想？')) return;
+  try {
+    await deleteNote(id);
+    const cardId = parseHash().params.get('id');
+    if (cardId) renderDetail(cardId);
+  } catch (err) {
+    alert('刪除失敗：' + err.message);
+    console.error('[note] delete', err);
+  }
+};
+
+async function renderShare(cardId) {
+  const quoteEl = document.getElementById('shareQuote');
+  const sourceEl = document.getElementById('shareSource');
+  if (!quoteEl || !sourceEl) return;
+  if (!cardId) {
+    quoteEl.textContent = '沒有指定卡片';
+    sourceEl.innerHTML = '';
+    return;
+  }
+  const session = await getSession();
+  if (!session) {
+    quoteEl.textContent = '請先到「設定」登入 Google';
+    sourceEl.innerHTML = '';
+    return;
+  }
+  try {
+    const card = await getCard(cardId);
+    if (!card) {
+      quoteEl.textContent = '找不到這張卡片';
+      sourceEl.innerHTML = '';
+      return;
+    }
+    quoteEl.innerHTML = escapeHtml(card.quote).replace(/\n/g, '<br>');
+    const author = card.source_author ? `—— ${escapeHtml(card.source_author)}` : '';
+    const year = card.source_year ? `${card.source_year} · ` : '';
+    const titleMark = card.source_type === 'book'
+      ? `《${escapeHtml(card.source_title)}》`
+      : escapeHtml(card.source_title);
+    sourceEl.innerHTML = `${author}<small>${year}${titleMark}</small>`;
+  } catch (err) {
+    quoteEl.textContent = '載入失敗';
+    sourceEl.innerHTML = `<small>${escapeHtml(err.message)}</small>`;
+    console.error('[share] render', err);
+  }
+}
+
 function renderActiveView() {
   const { route, params } = parseHash();
   if (route === 'shelf') renderBookshelf();
   else if (route === 'cards') renderCardsPage(params.get('book'));
+  else if (route === 'detail') renderDetail(params.get('id'));
+  else if (route === 'share') renderShare(params.get('id'));
 }
 
 window.handleCreateCard = async () => {
